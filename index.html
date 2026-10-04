@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BÀI TẬP RÈN LUYỆN</title>
+    
+    <script>
+        window.MathJax = { 
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], processEscapes: true },
+            svg: { fontCache: 'global' },
+            startup: { typeset: true }
+        };
+    </script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+ 
+    <style>
+        :root {
+            --primary: #0056b3; --secondary: #eef2f5; --text: #333;
+            --correct: #d4edda; --correct-border: #c3e6cb;
+           --incorrect: #f8d7da; --incorrect-border: #f5c6cb;
+           --graph-blue: #0056b3; --graph-red: #dc3545; --font-size: 14pt;
+        }
+        * { box-sizing: border-box; } 
+        body { font-family: 'Segoe UI', sans-serif; font-size: var(--font-size); line-height: 1.6; color: var(--text); max-width: 950px; margin: 0 auto; padding: 10px 20px; background-color: #f4f7f6; transition: max-width 0.3s ease, font-size 0.2s ease; overflow-x: hidden; }
+        h1, h2, h3, h4 { color: var(--primary); margin-top: 0; }
+        .box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; width: 100%;}
+        
+        /* Control Panel */
+        .control-panel { background: var(--secondary); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 9999; border: 2px solid var(--primary); padding: 8px 10px !important; box-shadow: 0 6px 10px rgba(0,0,0,0.15); font-size: 0.85em; }
+        .control-panel label { font-weight: bold; white-space: nowrap; }
+        .control-panel input { width: 45px; padding: 3px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: inherit;}
+        button { background-color: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.3s; font-size: inherit; }
+        button:hover { background-color: #004494; transform: translateY(-1px); }
+        button.submit-btn { background-color: #28a745; font-size: 1.1em; padding: 12px 25px; margin-top: 15px; width: 100%;}
+        button.submit-btn:hover { background-color: #218838; }
+
+        .font-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; margin-right: 5px; border-right: 2px solid #ccc; padding-right: 10px; }
+        button.font-btn { background-color: #6c757d; padding: 4px 8px; }
+        button.font-btn:hover { background-color: #5a6268; }
+        
+        /* Tên Giáo Viên */
+        .teacher-name { margin-left: auto; color: var(--graph-red); font-weight: bold; font-size: 0.9em; text-transform: uppercase; white-space: nowrap; }
+
+        /* Bảng Biến Thiên CSS Chuẩn Sư Phạm */
+        .bbt-table { width: 100%; max-width: 600px; border-collapse: collapse; text-align: center; background: #fff; margin: 15px auto; border: 1px solid #000; font-size: 1.1em; line-height: 1.2; }
+        .bbt-table th, .bbt-table td { padding: 8px 5px; position: relative; border: none; }
+        .bbt-table tr.border-bottom td { border-bottom: 1px solid #000; }
+        .bbt-table .col-label { border-right: 1px solid #000; font-weight: bold; width: 50px; background-color: #f8f9fa; } 
+        .bbt-table .dbl-col { border-left: 1px solid #000; border-right: 1px solid #000; width: 4px !important; min-width: 4px !important; max-width: 4px !important; padding: 0 !important; }
+        .y-val-top { vertical-align: top; padding-top: 10px; }
+        .y-val-bot { vertical-align: bottom; padding-bottom: 10px; }
+        .y-val-mid { vertical-align: middle; }
+
+        /* Câu hỏi & SVG */
+        .question { margin-top: 15px; padding: 20px; border: 1px solid #e2e2e2; border-radius: 8px; background: #fff; }
+        .svg-container { text-align: center; margin: 15px 0; }
+        .tikz-svg { width: 100%; max-width: 280px; height: auto; background: #fff; }
+        .options { list-style-type: none; padding-left: 0; margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .options li { padding: 10px; border-radius: 4px; border: 1px solid transparent; transition: 0.2s; background: #fdfdfd; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
+        .options label { cursor: pointer; display: flex; align-items: center; gap: 10px; width: 100%; }
+        input[type="radio"] { width: 1.5em; height: 1.5em; cursor: pointer; accent-color: var(--primary); flex-shrink: 0; }
+        
+        .tf-table { width: 100%; border-collapse: collapse; text-align: center; margin-top: 10px;}
+        .tf-table th, .tf-table td { border: 1px solid #ddd; padding: 12px; vertical-align: middle; }
+        .tf-table td:first-child { text-align: left; }
+        
+        .is-correct { background-color: var(--correct) !important; border-color: var(--correct-border) !important; }
+        .is-incorrect { background-color: var(--incorrect) !important; border-color: var(--incorrect-border) !important; }
+        .feedback { font-weight: bold; font-size: 0.9em; display: block; margin-top: 5px;}
+        .text-correct { color: #155724; }
+        .text-incorrect { color: #721c24; }
+        .advice-box { margin-top: 20px; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; font-size: 1.1em; display: none; }
+
+        @media (max-width: 900px) {
+            .control-panel { flex-direction: row; gap: 6px; padding: 6px !important; }
+            .font-controls { border-right: none; border-bottom: 1px solid #ccc; padding-bottom: 6px; margin-bottom: 2px; width: 100%; justify-content: center; margin-right: 0;}
+            .teacher-name { margin-left: 0; width: 100%; text-align: center; margin-top: 5px; }
+            .options { grid-template-columns: 1fr; }
+            .tf-table { font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body>
+ 
+    <div class="box control-panel">
+        <div class="font-controls">
+            <button class="font-btn" onclick="toggleFullScreen()" title="Bật/Tắt chế độ Toàn Màn Hình (F11)">📺 Toàn màn hình</button>
+            <button class="font-btn" onclick="toggleWidth()" title="Phóng to/Thu nhỏ khung viền trang web">↔️ Đổi khung</button>
+            <span style="margin: 0 5px; color: #ccc;">|</span>
+            <label>Cỡ chữ:</label>
+            <button class="font-btn" onclick="changeFontSize(-2)">A-</button>
+            <span id="font-size-display" style="font-weight: bold; width: 40px; text-align: center;">14pt</span>
+            <button class="font-btn" onclick="changeFontSize(2)">A+</button>
+        </div>
+        <label>Trắc nghiệm (4 PA): <input type="number" id="numType1" value="10" min="0" max="30"></label>
+        <label>Đúng/Sai: <input type="number" id="numType2" value="3" min="0" max="15"></label>
+        <button onclick="generateTest()">TẠO ĐỀ RÈN LUYỆN</button>
+        
+        <div class="teacher-name">Giáo viên: Nguyễn Văn Sô</div>
+    </div>
+ 
+    <div class="box theory-box">
+        <h1 style="text-align: center; text-transform: uppercase; margin-bottom: 5px;">BÀI TẬP RÈN LUYỆN</h1>
+        <div style="text-align: center; font-style: italic; color: var(--primary); font-weight: bold;">
+            Hệ thống sinh câu hỏi tự động - Đa dạng các dạng toán
+        </div>
+    </div>
+ 
+    <div id="output" class="box" style="display: none;">
+        <div id="test-content"></div>
+        <button class="submit-btn" onclick="checkAnswers()" id="submitBtn">NỘP BÀI & CHẤM ĐIỂM</button>
+        <h3 id="score-display" style="text-align: center; color: #0056b3; margin-top: 15px;"></h3>
+        <div id="advice-display" class="advice-box"></div>
+    </div>
+ 
+    <script>
+        // --- ĐIỀU KHIỂN GIAO DIỆN ---
+        let currentFontSize = 14; let isExpanded = false;
+        function changeFontSize(delta) { 
+            currentFontSize += delta; 
+            if (currentFontSize < 10) currentFontSize = 10; 
+            if (currentFontSize > 32) currentFontSize = 32; 
+            document.documentElement.style.setProperty('--font-size', currentFontSize + 'pt'); 
+            document.getElementById('font-size-display').innerText = currentFontSize + 'pt'; 
+        }
+        function toggleWidth() { 
+            isExpanded = !isExpanded; 
+            document.body.style.maxWidth = isExpanded ? '100%' : '950px'; 
+        }
+        function toggleFullScreen() { 
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(err => { alert(err.message); }); } 
+            else { if (document.exitFullscreen) { document.exitFullscreen(); } } 
+        }
+        function shuffle(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
+
+        // ================= HỆ THỐNG VẼ ĐỒ THỊ CHUẨN SƯ PHẠM (SVG) =================
+        function generateTikzSVG(f, asymX=null, asymY=null, slantM=null, slantN=null) {
+            let svg = `<svg viewBox="-6 -6 12 12" class="tikz-svg">`;
+            svg += `<defs>
+                        <marker id="arrowHead" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="4" markerHeight="4" orient="auto">
+                            <path d="M 0 0 L 10 5 L 0 10 z" fill="#000" />
+                        </marker>
+                    </defs>`;
+            
+            // Lưới
+            svg += `<g stroke="#f0f0f0" stroke-width="0.05">`;
+            for(let i=-5; i<=5; i++) {
+                svg += `<line x1="-5.5" y1="${i}" x2="5.5" y2="${i}" />`;
+                svg += `<line x1="${i}" y1="-5.5" x2="${i}" y2="5.5" />`;
+            }
+            svg += `</g>`;
+
+            // Tiệm cận
+            if(asymX !== null) svg += `<line x1="${asymX}" y1="-5.5" x2="${asymX}" y2="5.5" stroke="#888" stroke-width="0.06" stroke-dasharray="0.2,0.2" />`;
+            if(asymY !== null) svg += `<line x1="-5.5" y1="${-asymY}" x2="5.5" y2="${-asymY}" stroke="#888" stroke-width="0.06" stroke-dasharray="0.2,0.2" />`;
+            if(slantM !== null && slantN !== null) {
+                let sy1 = slantM * (-5.5) + slantN; let sy2 = slantM * (5.5) + slantN;
+                svg += `<line x1="-5.5" y1="${-sy1}" x2="5.5" y2="${-sy2}" stroke="#888" stroke-width="0.06" stroke-dasharray="0.2,0.2" />`;
+            }
+
+            // Vạch & Đánh số
+            svg += `<g stroke="#000" stroke-width="0.06" font-family="serif" font-size="0.6">`;
+            for(let i=-5; i<=5; i++) {
+                if(i !== 0) {
+                    svg += `<line x1="${i}" y1="-0.1" x2="${i}" y2="0.1" />`;
+                    if(i % 2 === 0 || i === asymX) svg += `<text x="${i}" y="0.8" text-anchor="middle" stroke-width="0">${i}</text>`;
+                    
+                    svg += `<line x1="-0.1" y1="${-i}" x2="0.1" y2="${-i}" />`;
+                    if(i % 2 === 0 || i === asymY) svg += `<text x="-0.3" y="${-i + 0.2}" text-anchor="end" stroke-width="0">${i}</text>`;
+                }
+            }
+            svg += `</g>`;
+
+            // Trục
+            svg += `<line x1="-5.8" y1="0" x2="5.8" y2="0" stroke="#000" stroke-width="0.08" marker-end="url(#arrowHead)"/>`;
+            svg += `<line x1="0" y1="5.8" x2="0" y2="-5.8" stroke="#000" stroke-width="0.08" marker-end="url(#arrowHead)"/>`;
+            svg += `<text x="5.5" y="-0.3" font-family="serif" font-style="italic" font-size="0.6">x</text>`;
+            svg += `<text x="0.3" y="-5.5" font-family="serif" font-style="italic" font-size="0.6">y</text>`;
+            svg += `<text x="-0.4" y="0.5" font-family="serif" font-style="italic" font-size="0.6">O</text>`;
+
+            // Đồ thị
+            let path = ""; let started = false;
+            for(let x = -5.5; x <= 5.5; x += 0.05) {
+                if (asymX !== null && Math.abs(x - asymX) < 0.15) { started = false; continue; }
+                let y = f(x);
+                if(y > 6 || y < -6 || isNaN(y)) { started = false; continue; }
+                let X = x; let Y = -y;
+                if(!started) { path += `M ${X.toFixed(2)} ${Y.toFixed(2)} `; started = true; }
+                else { path += `L ${X.toFixed(2)} ${Y.toFixed(2)} `; }
+            }
+            svg += `<path d="${path}" fill="none" stroke="var(--graph-blue)" stroke-width="0.12" stroke-linejoin="round"/>`;
+            svg += `</svg>`;
+            return svg;
+        }
+
+        // ================= NGÂN HÀNG CÂU HỎI ĐỘNG (CHỐNG TRÙNG LẶP) =================
+        let questionCounter = 1;
+
+        // --- 1. Nhận dạng hàm Bậc 3 ---
+        function genT1_Cubic(usedSigs) {
+            let a, d, sig, attempts = 0;
+            do {
+                a = Math.random() > 0.5 ? 1 : -1;
+                d = Math.floor(Math.random() * 5) - 2; 
+                sig = `cubic_${a}_${d}`;
+                attempts++;
+            } while (usedSigs.has(sig) && attempts < 20);
+            usedSigs.add(sig);
+
+            let func = (x) => a * (x*x*x - 3*x) + d; 
+            let svg = generateTikzSVG(func);
+            let termA = a > 0 ? "" : "-"; let termOpA = a > 0 ? "-" : "";
+            
+            let opts = shuffle([
+                `<li><label><input type="radio" name="q${questionCounter}" value="true"> A. $y = ${termA}x^3 ${a>0?'-':'+'} 3x ${d>0?'+'+d : d<0?d : ''}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> B. $y = ${termOpA}x^3 ${a>0?'+':'-'} 3x ${d>0?'+'+d : d<0?d : ''}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> C. $y = ${termA}x^4 ${a>0?'-':'+'} 2x^2 ${d>0?'+'+d : d<0?d : ''}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> D. $y = ${termA}x^3 ${a>0?'+':'-'} 3x ${d>0?'+'+d : d<0?d : ''}$</label></li>`
+            ]);
+
+            let html = `<div class="question type1-q"><p><strong>Câu ${questionCounter}:</strong> Đồ thị của hàm số nào dưới đây có dạng như đường cong trong hình vẽ bên?</p><div class="svg-container">${svg}</div><ul class="options">${opts.join('')}</ul></div>`;
+            questionCounter++; return html;
+        }
+
+        // --- 2. Nhận dạng hàm Phân thức 1/1 ---
+        function genT1_Frac(usedSigs) {
+            let TC_D, TC_N, b, sig, attempts = 0;
+            do {
+                TC_D = Math.floor(Math.random() * 5) - 2; if(TC_D === 0) TC_D = 1;
+                TC_N = Math.floor(Math.random() * 5) - 2; if(TC_N === 0) TC_N = -1;
+                b = Math.floor(Math.random() * 5) - 2;
+                if (TC_N*(-TC_D) - b === 0) b += 1; 
+                sig = `frac_${TC_D}_${TC_N}_${b}`;
+                attempts++;
+            } while (usedSigs.has(sig) && attempts < 20);
+            usedSigs.add(sig);
+
+            let a = TC_N; let d = -TC_D;
+            let func = (x) => (a*x + b) / (x + d);
+            let svg = generateTikzSVG(func, TC_D, TC_N);
+
+            let opts = shuffle([
+                `<li><label><input type="radio" name="q${questionCounter}" value="true"> A. $y = \\frac{${a===1?'':a===-1?'-':a}x ${b>0?'+'+b : b<0?b : ''}}{x ${d>0?'+'+d : d<0?d : ''}}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> B. $y = \\frac{${a===1?'':a===-1?'-':a}x ${b>0?'+'+b : b<0?b : ''}}{x ${-d>0?'+'+(-d) : -d<0?-d : ''}}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> C. $y = \\frac{${d===1?'':d===-1?'-':d}x ${b>0?'+'+b : b<0?b : ''}}{x ${-a>0?'+'+(-a) : -a<0?-a : ''}}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> D. $y = \\frac{x ${b>0?'+'+b : b<0?b : ''}}{x ${d>0?'+'+d : d<0?d : ''}}$</label></li>`
+            ]);
+
+            let html = `<div class="question type1-q"><p><strong>Câu ${questionCounter}:</strong> Đường cong trong hình vẽ bên là đồ thị của hàm số sau đây?</p><div class="svg-container">${svg}</div><ul class="options">${opts.join('')}</ul></div>`;
+            questionCounter++; return html;
+        }
+
+        // --- 3. Nhận dạng hàm Bậc 4 Trùng Phương ---
+        function genT1_Quartic(usedSigs) {
+            let a, b, c, sig, attempts = 0;
+            do {
+                a = Math.random() > 0.5 ? 1 : -1;
+                b = (Math.random() > 0.5 ? 2 : -2) * (a > 0 ? -1 : 1); // Tạo 3 điểm cực trị
+                c = Math.floor(Math.random() * 5) - 2;
+                sig = `quartic_${a}_${b}_${c}`;
+                attempts++;
+            } while (usedSigs.has(sig) && attempts < 20);
+            usedSigs.add(sig);
+
+            let func = (x) => a*x*x*x*x + b*x*x + c; 
+            let svg = generateTikzSVG(func);
+            let termA = a > 0 ? "" : "-"; let termOpA = a > 0 ? "-" : "";
+            
+            let opts = shuffle([
+                `<li><label><input type="radio" name="q${questionCounter}" value="true"> A. $y = ${termA}x^4 ${b>0?'+'+b:b}x^2 ${c>0?'+'+c : c<0?c : ''}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> B. $y = ${termOpA}x^4 ${b>0?'+'+b:b}x^2 ${c>0?'+'+c : c<0?c : ''}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> C. $y = ${termA}x^4 ${-b>0?'+'+(-b):-b}x^2 ${c>0?'+'+c : c<0?c : ''}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> D. $y = ${termA}x^3 ${b>0?'+'+b:b}x ${c>0?'+'+c : c<0?c : ''}$</label></li>`
+            ]);
+
+            let html = `<div class="question type1-q"><p><strong>Câu ${questionCounter}:</strong> Hàm số nào có đồ thị là đường cong trong hình vẽ bên dưới?</p><div class="svg-container">${svg}</div><ul class="options">${opts.join('')}</ul></div>`;
+            questionCounter++; return html;
+        }
+
+        // --- 4. Nhận dạng hàm Bậc 2 (Parabol) ---
+        function genT1_Quad(usedSigs) {
+            let a, h, k, sig, attempts = 0;
+            do {
+                a = Math.random() > 0.5 ? 1 : -1;
+                h = Math.floor(Math.random() * 5) - 2;
+                k = Math.floor(Math.random() * 5) - 2;
+                sig = `quad_${a}_${h}_${k}`;
+                attempts++;
+            } while (usedSigs.has(sig) && attempts < 20);
+            usedSigs.add(sig);
+
+            let func = (x) => a*(x-h)*(x-h) + k; 
+            let svg = generateTikzSVG(func);
+            let b = -2*a*h; let c = a*h*h + k;
+            
+            let funcStrA = `${a===1?'':'-'}x^2 ${b>0?'+'+b:b<0?b:''}x ${c>0?'+'+c : c<0?c : ''}`;
+            let funcStrB = `${a===1?'-':''}x^2 ${b>0?'+'+b:b<0?b:''}x ${c>0?'+'+c : c<0?c : ''}`;
+            let funcStrC = `${a===1?'':'-'}x^3 ${b>0?'+'+b:b<0?b:''}x ${c>0?'+'+c : c<0?c : ''}`;
+
+            let opts = shuffle([
+                `<li><label><input type="radio" name="q${questionCounter}" value="true"> A. $y = ${funcStrA}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> B. $y = ${funcStrB}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> C. $y = ${funcStrC}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> D. $y = ${a===1?'':'-'}x^2 ${-b>0?'+'+(-b):-b<0?-b:''}x ${c>0?'+'+c : c<0?c : ''}$</label></li>`
+            ]);
+
+            let html = `<div class="question type1-q"><p><strong>Câu ${questionCounter}:</strong> Đồ thị hàm số bậc hai nào dưới đây có dạng như hình vẽ?</p><div class="svg-container">${svg}</div><ul class="options">${opts.join('')}</ul></div>`;
+            questionCounter++; return html;
+        }
+
+        // --- 5. Nhận dạng hàm Phân thức 2/1 ---
+        function genT1_Frac21(usedSigs) {
+            let m = 1; let p = -2; let n = 1; // y = x + 1 + 1/(x-2) = (x^2 - x - 1)/(x-2)
+            let func = (x) => x + m + n/(x+p);
+            let svg = generateTikzSVG(func, -p, null, 1, m);
+
+            let opts = shuffle([
+                `<li><label><input type="radio" name="q${questionCounter}" value="true"> A. $y = \\frac{x^2 - x - 1}{x - 2}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> B. $y = \\frac{x^2 + x + 1}{x + 2}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> C. $y = \\frac{-x^2 + x + 1}{x - 2}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> D. $y = \\frac{x^2 - x + 1}{x - 1}$</label></li>`
+            ]);
+
+            let html = `<div class="question type1-q"><p><strong>Câu ${questionCounter}:</strong> Đồ thị của hàm số phân thức bậc hai trên bậc một nào dưới đây có dạng như đường cong trong hình bên?</p><div class="svg-container">${svg}</div><ul class="options">${opts.join('')}</ul></div>`;
+            questionCounter++; return html;
+        }
+
+        // --- 6. Xác định dấu hệ số từ đồ thị bậc 3 ---
+        function genT1_CoeffCubic(usedSigs) {
+            let func = (x) => x*x*x - 3*x*x + 2; // a>0, b<0, c=0, d>0
+            let svg = generateTikzSVG(func);
+
+            let opts = shuffle([
+                `<li><label><input type="radio" name="q${questionCounter}" value="true"> A. $a > 0, b < 0, d > 0$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> B. $a < 0, b > 0, d > 0$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> C. $a > 0, b > 0, d < 0$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> D. $a < 0, b < 0, d < 0$</label></li>`
+            ]);
+
+            let html = `<div class="question type1-q"><p><strong>Câu ${questionCounter}:</strong> Cho hàm số $y = ax^3 + bx^2 + cx + d \\ (a \\neq 0)$ có đồ thị như hình vẽ. Khẳng định nào sau đây đúng về dấu của các hệ số?</p><div class="svg-container">${svg}</div><ul class="options">${opts.join('')}</ul></div>`;
+            questionCounter++; return html;
+        }
+
+        // --- 7. Bảng Xét Dấu ---
+        function genT1_SignTable(usedSigs) {
+            let x1 = -2; let x2 = 1; let x3 = 3;
+            let opts = shuffle([
+                `<li><label><input type="radio" name="q${questionCounter}" value="true"> A. Hàm số có 2 điểm cực trị.</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> B. Hàm số đạt cực đại tại $x = 1$.</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> C. Hàm số đồng biến trên khoảng $(1; 3)$.</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> D. Hàm số có 3 điểm cực trị.</label></li>`
+            ]);
+
+            let html = `<div class="question type1-q">
+                <p><strong>Câu ${questionCounter}:</strong> Cho hàm số $f(x)$ liên tục trên $\\mathbb{R}$ và có bảng xét dấu đạo hàm $f'(x)$ như sau:</p>
+                <table class="bbt-table" style="max-width: 450px;">
+                    <tr class="border-bottom"><td class="col-label">$x$</td><td>$-\\infty$</td><td></td><td>${x1}</td><td></td><td>${x2}</td><td></td><td>${x3}</td><td></td><td>$+\\infty$</td></tr>
+                    <tr><td class="col-label">$f'(x)$</td><td></td><td>$+$</td><td>$0$</td><td>$-$</td><td>$0$</td><td>$-$</td><td>$0$</td><td>$+$</td><td></td></tr>
+                </table>
+                <p>Khẳng định nào sau đây đúng?</p>
+                <ul class="options" style="grid-template-columns: 1fr;">${opts.join('')}</ul></div>`;
+            questionCounter++; return html;
+        }
+
+        // --- 8. Tìm phương trình Tiệm cận ---
+        function genT1_Asymptote(usedSigs) {
+            let numA = Math.floor(Math.random() * 5) + 1;
+            let numB = Math.floor(Math.random() * 9) - 4;
+            let denC = Math.floor(Math.random() * 3) + 1;
+            let denD = Math.floor(Math.random() * 9) - 4;
+            if (denD === 0) denD = 2;
+
+            let type = Math.random() > 0.5 ? "ngang" : "đứng";
+            let ansTrue = type === "ngang" ? `y = \\frac{${numA}}{${denC}}` : `x = \\frac{${-denD}}{${denC}}`;
+            let ansF1 = type === "ngang" ? `y = \\frac{${-denD}}{${denC}}` : `x = \\frac{${numA}}{${denC}}`;
+            let ansF2 = type === "ngang" ? `x = \\frac{${numA}}{${denC}}` : `y = \\frac{${-denD}}{${denC}}`;
+            let ansF3 = type === "ngang" ? `y = \\frac{${numB}}{${denD}}` : `x = \\frac{${-numB}}{${numA}}`;
+
+            let opts = shuffle([
+                `<li><label><input type="radio" name="q${questionCounter}" value="true"> A. $${ansTrue}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> B. $${ansF1}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> C. $${ansF2}$</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> D. $${ansF3}$</label></li>`
+            ]);
+
+            let funcDisplay = `y = \\frac{${numA===1?'':numA}x ${numB>=0?'+'+numB:numB}}{${denC===1?'':denC}x ${denD>=0?'+'+denD:denD}}`;
+
+            let html = `<div class="question type1-q"><p><strong>Câu ${questionCounter}:</strong> Đường tiệm cận ${type} của đồ thị hàm số $${funcDisplay}$ có phương trình là:</p><ul class="options">${opts.join('')}</ul></div>`;
+            questionCounter++; return html;
+        }
+
+        // --- 9. Khảo sát từ BBT ---
+        function genT1_BBT(usedSigs) {
+            let x1 = -1; let x2 = 2; let y1 = 5; let y2 = -3;
+            let opts = shuffle([
+                `<li><label><input type="radio" name="q${questionCounter}" value="true"> A. Hàm số nghịch biến trên khoảng $(${x1}; ${x2})$.</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> B. Hàm số đồng biến trên khoảng $(${x1}; ${x2})$.</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> C. Hàm số đạt cực tiểu tại $x = ${x1}$.</label></li>`,
+                `<li><label><input type="radio" name="q${questionCounter}" value="false"> D. Giá trị cực đại của hàm số là $x = ${x1}$.</label></li>`
+            ]);
+
+            let html = `<div class="question type1-q">
+                <p><strong>Câu ${questionCounter}:</strong> Cho hàm số $y = f(x)$ có bảng biến thiên như sau:</p>
+                <table class="bbt-table">
+                    <tr class="border-bottom"><td class="col-label">$x$</td><td>$-\\infty$</td><td></td><td>${x1}</td><td></td><td>${x2}</td><td></td><td>$+\\infty$</td></tr>
+                    <tr class="border-bottom"><td class="col-label">$y'$</td><td></td><td>$+$</td><td>$0$</td><td>$-$</td><td>$0$</td><td>$+$</td><td></td></tr>
+                    <tr style="height: 60px;">
+                        <td class="col-label">$y$</td><td class="y-val-bot">$-\\infty$</td><td class="y-val-mid">$\\nearrow$</td>
+                        <td class="y-val-top">${y1}</td><td class="y-val-mid">$\\searrow$</td><td class="y-val-bot">${y2}</td>
+                        <td class="y-val-mid">$\\nearrow$</td><td class="y-val-top">$+\\infty$</td>
+                    </tr>
+                </table>
+                <p>Mệnh đề nào dưới đây đúng?</p>
+                <ul class="options" style="grid-template-columns: 1fr;">${opts.join('')}</ul></div>`;
+            questionCounter++; return html;
+        }
+
+        // ================= DẠNG 2: ĐÚNG / SAI =================
+
+        function genT2_Cubic(usedSigs) {
+            let d, sig, attempts = 0;
+            do {
+                d = Math.floor(Math.random() * 9) - 4;
+                sig = `t2cubic_${d}`;
+                attempts++;
+            } while (usedSigs.has(sig) && attempts < 20);
+            usedSigs.add(sig);
+
+            let minVal = d - 4; 
+            
+            let html = `<div class="question type2-q">
+                <p><strong>Câu ${questionCounter}:</strong> Cho hàm số đa thức $y = x^3 - 3x^2 ${d>0?'+'+d : d<0?d : ''}$. Xét tính đúng/sai của các mệnh đề sau:</p>
+                <div class="table-responsive"><table class="tf-table">
+                    <tr><th>Mệnh đề</th><th style="width:60px">Đúng</th><th style="width:60px">Sai</th><th style="width:120px">Phản hồi</th></tr>
+                    <tr data-ans="true"><td>a) Hàm số đồng biến trên khoảng $(2; +\\infty)$.</td>
+                        <td><input type="radio" name="t2q${questionCounter}a" value="true"></td><td><input type="radio" name="t2q${questionCounter}a" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="true"><td>b) Đồ thị hàm số đạt cực đại tại điểm có hoành độ $x = 0$.</td>
+                        <td><input type="radio" name="t2q${questionCounter}b" value="true"></td><td><input type="radio" name="t2q${questionCounter}b" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="true"><td>c) Giá trị nhỏ nhất của hàm số trên đoạn $[0; 3]$ bằng ${minVal}.</td>
+                        <td><input type="radio" name="t2q${questionCounter}c" value="true"></td><td><input type="radio" name="t2q${questionCounter}c" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="false"><td>d) Đồ thị hàm số không có điểm uốn.</td>
+                        <td><input type="radio" name="t2q${questionCounter}d" value="true"></td><td><input type="radio" name="t2q${questionCounter}d" value="false"></td><td class="feedback"></td></tr>
+                </table></div></div>`;
+            questionCounter++; return html;
+        }
+
+        function genT2_Frac(usedSigs) {
+            let a, c, sig, attempts = 0;
+            do {
+                a = Math.floor(Math.random() * 4) + 1;
+                c = Math.floor(Math.random() * 4) + 1;
+                sig = `t2frac_${a}_${c}`;
+                attempts++;
+            } while (usedSigs.has(sig) && attempts < 20);
+            usedSigs.add(sig);
+
+            let html = `<div class="question type2-q">
+                <p><strong>Câu ${questionCounter}:</strong> Cho hàm số $y = \\frac{${a===1?'':a}x - 1}{x + ${c}}$. Xét tính đúng/sai của các mệnh đề sau:</p>
+                <div class="table-responsive"><table class="tf-table">
+                    <tr><th>Mệnh đề</th><th style="width:60px">Đúng</th><th style="width:60px">Sai</th><th style="width:120px">Phản hồi</th></tr>
+                    <tr data-ans="false"><td>a) Tập xác định của hàm số là $\\mathbb{R} \\setminus \\{${c}\\}$.</td>
+                        <td><input type="radio" name="t2q${questionCounter}a" value="true"></td><td><input type="radio" name="t2q${questionCounter}a" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="true"><td>b) Đồ thị hàm số có đường tiệm cận đứng là $x = -${c}$.</td>
+                        <td><input type="radio" name="t2q${questionCounter}b" value="true"></td><td><input type="radio" name="t2q${questionCounter}b" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="true"><td>c) Hàm số luôn đồng biến trên từng khoảng xác định của nó.</td>
+                        <td><input type="radio" name="t2q${questionCounter}c" value="true"></td><td><input type="radio" name="t2q${questionCounter}c" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="false"><td>d) Đường tiệm cận ngang của đồ thị đi qua gốc tọa độ.</td>
+                        <td><input type="radio" name="t2q${questionCounter}d" value="true"></td><td><input type="radio" name="t2q${questionCounter}d" value="false"></td><td class="feedback"></td></tr>
+                </table></div></div>`;
+            questionCounter++; return html;
+        }
+
+        function genT2_Quartic(usedSigs) {
+            let a, b, sig, attempts = 0;
+            do {
+                a = Math.random() > 0.5 ? 1 : -1;
+                b = Math.random() > 0.5 ? 2 : -2;
+                sig = `t2quartic_${a}_${b}`;
+                attempts++;
+            } while (usedSigs.has(sig) && attempts < 20);
+            usedSigs.add(sig);
+
+            let has3Extrema = (a*b < 0);
+            
+            let html = `<div class="question type2-q">
+                <p><strong>Câu ${questionCounter}:</strong> Cho hàm số $y = ${a===1?'':'-'}x^4 ${b>0?'+'+b:b}x^2 - 1$. Xét tính đúng/sai của các mệnh đề sau:</p>
+                <div class="table-responsive"><table class="tf-table">
+                    <tr><th>Mệnh đề</th><th style="width:60px">Đúng</th><th style="width:60px">Sai</th><th style="width:120px">Phản hồi</th></tr>
+                    <tr data-ans="${a>0?'true':'false'}"><td>a) Bề lõm của đồ thị hướng lên trên.</td>
+                        <td><input type="radio" name="t2q${questionCounter}a" value="true"></td><td><input type="radio" name="t2q${questionCounter}a" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="true"><td>b) Đồ thị hàm số nhận trục tung làm trục đối xứng.</td>
+                        <td><input type="radio" name="t2q${questionCounter}b" value="true"></td><td><input type="radio" name="t2q${questionCounter}b" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="${has3Extrema?'true':'false'}"><td>c) Hàm số có đúng 3 điểm cực trị.</td>
+                        <td><input type="radio" name="t2q${questionCounter}c" value="true"></td><td><input type="radio" name="t2q${questionCounter}c" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="true"><td>d) Đồ thị hàm số đi qua điểm $A(0; -1)$.</td>
+                        <td><input type="radio" name="t2q${questionCounter}d" value="true"></td><td><input type="radio" name="t2q${questionCounter}d" value="false"></td><td class="feedback"></td></tr>
+                </table></div></div>`;
+            questionCounter++; return html;
+        }
+        
+        function genT2_Frac21(usedSigs) {
+            let html = `<div class="question type2-q">
+                <p><strong>Câu ${questionCounter}:</strong> Cho hàm số phân thức $y = \\frac{x^2 - x - 1}{x - 2}$. Xét tính đúng/sai của các mệnh đề sau:</p>
+                <div class="table-responsive"><table class="tf-table">
+                    <tr><th>Mệnh đề</th><th style="width:60px">Đúng</th><th style="width:60px">Sai</th><th style="width:120px">Phản hồi</th></tr>
+                    <tr data-ans="true"><td>a) Đồ thị hàm số có đường tiệm cận đứng là $x = 2$.</td>
+                        <td><input type="radio" name="t2q${questionCounter}a" value="true"></td><td><input type="radio" name="t2q${questionCounter}a" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="true"><td>b) Đường tiệm cận xiên của đồ thị là $y = x + 1$.</td>
+                        <td><input type="radio" name="t2q${questionCounter}b" value="true"></td><td><input type="radio" name="t2q${questionCounter}b" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="true"><td>c) Hàm số có 2 điểm cực trị.</td>
+                        <td><input type="radio" name="t2q${questionCounter}c" value="true"></td><td><input type="radio" name="t2q${questionCounter}c" value="false"></td><td class="feedback"></td></tr>
+                    <tr data-ans="false"><td>d) Hàm số đồng biến trên toàn trục số.</td>
+                        <td><input type="radio" name="t2q${questionCounter}d" value="true"></td><td><input type="radio" name="t2q${questionCounter}d" value="false"></td><td class="feedback"></td></tr>
+                </table></div></div>`;
+            questionCounter++; return html;
+        }
+
+        // ================= TRÌNH TẠO ĐỀ & CHẤM ĐIỂM =================
+        function generateTest() {
+            let n1 = parseInt(document.getElementById('numType1').value);
+            let n2 = parseInt(document.getElementById('numType2').value);
+            let testContent = document.getElementById('test-content');
+            
+            document.getElementById('output').style.display = 'block';
+            document.getElementById('submitBtn').style.display = 'block';
+            document.getElementById('score-display').innerHTML = '';
+            document.getElementById('advice-display').style.display = 'none';
+            
+            questionCounter = 1; 
+            let finalHtml = ""; 
+            let usedSignatures = new Set(); 
+
+            let poolT1 = [genT1_Cubic, genT1_Frac, genT1_Quartic, genT1_Quad, genT1_Frac21, genT1_Asymptote, genT1_BBT, genT1_SignTable, genT1_CoeffCubic];
+            let poolT2 = [genT2_Cubic, genT2_Frac, genT2_Quartic, genT2_Frac21];
+
+            if (n1 > 0) {
+                finalHtml += "<h3>Phần I: Câu trắc nghiệm nhiều phương án lựa chọn</h3>";
+                for (let i = 0; i < n1; i++) { 
+                    let genFunc = poolT1[Math.floor(Math.random() * poolT1.length)];
+                    finalHtml += genFunc(usedSignatures); 
+                }
+            }
+            if (n2 > 0) {
+                finalHtml += "<h3 style='margin-top:25px;'>Phần II: Câu trắc nghiệm đúng sai</h3>";
+                for (let i = 0; i < n2; i++) { 
+                    let genFunc = poolT2[Math.floor(Math.random() * poolT2.length)];
+                    finalHtml += genFunc(usedSignatures); 
+                }
+            }
+
+            testContent.innerHTML = finalHtml; 
+            
+            if (window.MathJax && MathJax.typesetPromise) {
+                MathJax.typesetClear([testContent]);
+                MathJax.typesetPromise([testContent]).catch(function (err) { console.error(err.message); });
+            }
+        }
+ 
+        function checkAnswers() {
+            let totalScore = 0; let maxScore = 0;
+            
+            document.querySelectorAll('.type1-q').forEach(q => { 
+                maxScore++; 
+                let radios = q.querySelectorAll('input[type="radio"]'); 
+                let answered = false; 
+                radios.forEach(radio => { 
+                    let li = radio.closest('li'); 
+                    li.classList.remove('is-correct', 'is-incorrect'); 
+                    if (radio.checked) { 
+                        answered = true; 
+                        if (radio.value === "true") { li.classList.add('is-correct'); totalScore++; } 
+                        else { li.classList.add('is-incorrect'); } 
+                    } 
+                    if (radio.value === "true" && answered) li.style.border = "2px solid var(--correct-border)"; 
+                }); 
+            });
+
+            document.querySelectorAll('.type2-q tr[data-ans]').forEach(row => { 
+                maxScore++; 
+                let correctAns = row.getAttribute('data-ans');
+                let radios = row.querySelectorAll('input[type="radio"]');
+                let feedback = row.querySelector('.feedback'); 
+                
+                row.classList.remove('is-correct', 'is-incorrect'); 
+                let checkedVal = null; 
+                radios.forEach(r => { if (r.checked) checkedVal = r.value; }); 
+                
+                if (checkedVal !== null) { 
+                    if (checkedVal === correctAns) { 
+                        row.classList.add('is-correct'); 
+                        feedback.innerHTML = "✔ ĐÚNG"; 
+                        feedback.className = "feedback text-correct"; 
+                        totalScore++; 
+                    } else { 
+                        row.classList.add('is-incorrect'); 
+                        feedback.innerHTML = `✘ SAI (Đ.Án: ${correctAns === "true" ? "Đúng" : "Sai"})`; 
+                        feedback.className = "feedback text-incorrect"; 
+                    } 
+                } else {
+                    feedback.innerHTML = "⚠ CHƯA CHỌN"; 
+                }
+            });
+            
+            let percent = maxScore === 0 ? 0 : Math.round((totalScore/maxScore)*100);
+            let scoreDisplay = document.getElementById('score-display'); 
+            let adviceBox = document.getElementById('advice-display');
+            
+            scoreDisplay.innerHTML = `Bạn đã đạt: ${totalScore} / ${maxScore} điểm (${percent}%)`; 
+            adviceBox.style.display = 'block';
+            
+            if (percent < 50) { 
+                adviceBox.style.backgroundColor = '#f8d7da'; adviceBox.style.color = '#721c24'; 
+                adviceBox.innerHTML = "Kết quả chưa tốt. Bạn cần ôn tập lại kỹ phần lý thuyết Khảo sát Hàm số nhé!"; 
+            } else if (percent < 80) { 
+                adviceBox.style.backgroundColor = '#fff3cd'; adviceBox.style.color = '#856404'; 
+                adviceBox.innerHTML = "Khá tốt! Hãy chú ý phân tích kỹ các nhánh vô cực, điểm uốn và tiệm cận."; 
+            } else { 
+                adviceBox.style.backgroundColor = '#d4edda'; adviceBox.style.color = '#155724'; 
+                adviceBox.innerHTML = "Xuất sắc! Năng lực Tư duy hình học và Giải tích của bạn rất vững vàng!"; 
+            }
+            
+            scoreDisplay.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    </script>
+</body>
+</html>
